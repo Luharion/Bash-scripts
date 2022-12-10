@@ -1,0 +1,26 @@
+#!/bin/sh
+
+
+[ -n "$1" ] && c="$1"
+[ -z "$c" ] && c="$(printf "none\\nmost\\nall read\\neverything" | dmenu -i -p "Archive which mail?")"
+
+case "$c" in
+	none) exit ;;
+	"") exit ;;
+	"all read") mv -v ~/.local/share/mail/email/INBOX/cur/*  ~/.local/share/mail/ldecaraux@rebootcyber.xyz/INBOX/cur/* ~/.local/share/mail/archive/Louisiana/cur/  2>/dev/null ;;
+	"everything")  mv -v ~/.local/share/mail/email/INBOX/cur/* ~/.local/share/mail/email/INBOX/new/* ~/.local/share/mail/archive/Louisiana/cur/ && mv -v ~/.local/share/mail/second/INBOX/cur/* ~/.local/share/mail/second/INBOX/new/* ~/.local/share/mail/archive/Louisiana/cur/  2>/dev/null ;;
+
+
+esac
+
+rm -f ~/.local/share/mail/email/Junk/cur/* ~/.local/share/mail/email/Junk/new/*
+mv -v ~/.local/share/mail/email/Sent/cur/* ~/.local/share/mail/email/archive/Sent/cur/ 2>/dev/null
+mv -v ~/.local/share/mail/email/archive/Louisiana/cur/* ~/.local/share/mail/archive/Louisiana/cur/ 2>/dev/null
+mv -v ~/.local/share/mail/email/Spam/new/* ~/.local/share/mail/email/Spam/cur/* ~/.local/share/mail/email/Trash/cur/* ~/.local/share/mail/archive/Trash/cur 2>/dev/null
+notify-send "📧 Inactive email moved to archive."
+notmuch new >/dev/null 2>/dev/null &
+
+
+[ -d /media/mail ] || exit
+
+rsync -aurP --delete-after ~/.local/share/mail/archive/* /media/mail
